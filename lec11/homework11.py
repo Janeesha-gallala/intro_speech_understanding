@@ -1,17 +1,44 @@
 import speech_recognition as sr
+from pydub import AudioSegment
+import os
 
 def transcribe_wavefile(filename, language):
-    '''
-    Use sr.Recognizer.AudioFile(filename) as the source,
-    recognize from that source,
-    and return the recognized text.
-    
+    """
+    Transcribe an audio file (wav or m4a) into text.
+
     @params:
-    filename (str) - the filename from which to read the audio
-    language (str) - the language of the audio
-    
+    filename (str) - the audio filename
+    language (str) - language code, e.g., 'en-US', 'ja-JP'
+
     @returns:
-    text (str) - the recognized speech
-    '''
-    raise RuntimeError("FAIL!!  You need to change this function so it works!")
-        
+    text (str) - recognized speech
+    """
+    # Convert to WAV if not already
+    if not filename.lower().endswith(".wav"):
+        wav_filename = "temp_audio.wav"
+        audio = AudioSegment.from_file(filename)
+        audio.export(wav_filename, format="wav")
+        filename_to_use = wav_filename
+    else:
+        filename_to_use = filename
+
+    recognizer = sr.Recognizer()
+
+    # Load audio file
+    with sr.AudioFile(filename_to_use) as source:
+        audio_data = recognizer.record(source)
+
+    # Try recognizing speech
+    try:
+        text = recognizer.recognize_google(audio_data, language=language)
+    except sr.UnknownValueError:
+        text = ""  # could not understand audio
+    except sr.RequestError as e:
+        text = f"API request failed: {e}"
+
+    # Clean up temporary file
+    if filename_to_use == "temp_audio.wav":
+        os.remove(filename_to_use)
+
+    return text
+
