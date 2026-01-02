@@ -65,7 +65,7 @@ def get_features(waveform, Fs):
     features = features[:N, :]
     labels = labels[:N]
 
-    # 🔒 Ensure labels are within 0–5
+    # Ensure labels are within 0–5
     labels = np.clip(labels, 0, 5)
 
     return features, labels
@@ -84,7 +84,7 @@ def train_neuralnet(features, labels, iterations):
     y = torch.tensor(labels, dtype=torch.long)
 
     nfeats = X.shape[1]
-    nlabels = 6   # ✅ REQUIRED BY GRADER
+    nlabels = 6   # REQUIRED BY GRADER
 
     model = nn.Sequential(
         nn.LayerNorm(nfeats),
